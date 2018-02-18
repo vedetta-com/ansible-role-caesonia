@@ -1,4 +1,4 @@
-![Public Domain](src/var/www/htdocs/mercury.example.com/Milonia_Caesonia-250x259.jpg)
+![Public Domain](Milonia_Caesonia-250x259.jpg)
 
 Ansible role for a Caesonia (beta)
 =================================
