@@ -1,0 +1,101 @@
+auth_verbose = yes
+imap_client_workarounds = delay-newmail tb-extra-mailbox-sep tb-lsub-flags
+listen = *
+#mail_debug = yes
+log_path = /var/log/dovecot
+#debug_log_path = /var/log/dovecot/dovecot-debug.log
+mail_home = {{ mail_dir }}/%d/%n
+mail_max_userip_connections = 20
+managesieve_notify_capability = mailto
+managesieve_sieve_capability = fileinto reject envelope encoded-character vacation subaddress comparator-i;ascii-numeric relational regex imap4flags copy include variables body enotify environment mailbox date index ihave duplicate mime foreverypart
+mbox_write_locks = fcntl
+
+namespace inbox {
+	inbox = yes
+	location = maildir:{{ mail_dir }}/%d/%n/Maildir:LAYOUT=fs
+	mailbox Drafts {
+		special_use = \Drafts
+	}
+	mailbox Junk {
+		special_use = \Junk
+	}
+	mailbox Sent {
+		special_use = \Sent
+	}
+	mailbox "Sent Messages" {
+		special_use = \Sent
+	}
+	mailbox Trash {
+		special_use = \Trash
+	}
+	prefix =
+	separator = /
+}
+
+passdb {
+	args = scheme=blf-crypt /etc/mail/passwd
+	driver = passwd-file
+}
+
+userdb {
+	args = uid=vmail gid=vmail home={{ mail_dir }}/%d/%n
+	driver = static
+}
+
+plugin {
+	auth_debug = no
+	auth_verbose = no
+	mail_debug = no
+	sieve = {{ mail_dir }}/%d/%n/%n.sieve
+	sieve_global_dir = /var/sieve
+	sieve_global_path = /var/sieve/global-default.sieve
+}
+
+protocols = imap sieve
+
+service auth {
+	unix_listener auth-userdb {
+	group = vmail
+	mode = 0666
+	user = vmail
+	}
+}
+
+service imap-login {
+	inet_listener imap {
+	port = 0
+	}
+}
+
+service managesieve-login {
+	inet_listener sieve {
+	port = 4190
+	}
+
+	inet_listener sieve_deprecated {
+	port = 2000
+	}
+}
+
+service pop3-login {
+	inet_listener pop3 {
+	port = 0
+	}
+}
+
+#ssl_cert = </etc/ssl/{{ domain }}.fullchain.pem
+#ssl_key = </etc/ssl/private/{{ domain }}.key
+#ssl_cipher_list = ALL:!LOW:!EXP:!aNULL
+#ssl_prefer_server_ciphers = yes
+#ssl_protocols = !SSLv2 !SSLv3
+
+userdb {
+	args = uid=vmail gid=vmail home={{ mail_dir }}/%d/%n
+	driver = passwd-file
+}
+
+protocol lda {
+	info_log_path = /var/log/dovecot/dovecot-deliver.log
+	log_path = /var/log/dovecot/dovecot-deliver-errors.log
+	mail_plugins = $mail_plugins sieve
+}

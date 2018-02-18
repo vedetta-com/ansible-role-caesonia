@@ -1,0 +1,91 @@
+---
+
+- name: set installurl
+  lineinfile:
+      dest=/etc/installurl
+      line="{{ installurl_mirror }}"
+      insertafter=EOF
+      create=True
+
+- group:
+    name: vmail
+    state: present
+
+- user:
+    name: vmail
+    comment: "Virtual Mail"
+    shell: /sbin/nologin
+    home: "{{ mail_dir }}"
+    group: vmail
+
+- user:
+    name: dsync
+    comment: "Dsync Replication"
+    shell: /bin/sh
+    home: "/home/dsync"
+    group: dsync
+
+- name: Installing packages
+  openbsd_pkg: name={{ item }} state=present
+  with_items: "{{ packages_list }}"
+
+-  template: src=backup.sh.j2 dest="/usr/local/bin/backup.sh" owner="root" group="wheel" mode="0755"
+-  template: src=dovecot-lda.sh.j2 dest="/usr/local/bin/dovecot-lda.sh" owner="root" group="wheel" mode="0755"
+-  template: src=get-ocsp.sh.j2 dest="/usr/local/bin/get-ocsp.sh" owner="root" group="wheel" mode="0755"
+-  template: src=hier.sh.j2 dest="/usr/local/bin/hier.sh" owner="root" group="wheel" mode="0755"
+-  template: src=learn_ham.sh.j2 dest="/usr/local/bin/learn_ham.sh" owner="root" group="wheel" mode="0755"
+-  template: src=learn_spam.sh.j2 dest="/usr/local/bin/learn_spam.sh" owner="root" group="wheel" mode="0755"
+-  template: src=quota-warning.sh.j2 dest="/usr/local/bin/quota-warning.sh" owner="root" group="wheel" mode="0755"
+-  template: src=smtpd.conf.j2 dest="/etc/mail/smtpd.conf" owner="root" group="wheel" mode="0644"
+-  template: src=blacklist.j2 dest="/etc/mail/blacklist" owner="root" group="wheel" mode="0644"
+-  template: src=whitelist.j2 dest="/etc/mail/whitelist" owner="root" group="wheel" mode="0644"
+-  template: src=mailname.j2 dest="/etc/mail/mailname" owner="root" group="wheel" mode="0644"
+-  template: src=relays.j2 dest="/etc/mail/relays" owner="root" group="wheel" mode="0644"
+-  template: src=vdomains.j2 dest="/etc/mail/vdomains" owner="root" group="wheel" mode="0644"
+-  template: src=virtual.j2 dest="/etc/mail/virtual" owner="root" group="wheel" mode="0644"
+-  template: src=passwd.j2 dest="/etc/mail/passwd" owner="_dovecot" group="_smtpd" mode="0440"
+-  template: src=dkimproxy_in.conf.j2 dest="/etc/dkimproxy_in.conf" owner="root" group="wheel" mode="0644"
+-  template: src=dkimproxy_out.conf.j2 dest="/etc/dkimproxy_out.conf" owner="root" group="wheel" mode="0644"
+-  template: src=90-plugin.conf.j2 dest="/etc/dovecot/conf.d/90-plugin.conf" owner="root" group="wheel" mode="0644"
+-  template: src=90-sieve.conf.j2 dest="/etc/dovecot/conf.d/90-sieve.conf" owner="root" group="wheel" mode="0644"
+-  template: src=90-quota.conf.j2 dest="/etc/dovecot/conf.d/90-quota.conf" owner="root" group="wheel" mode="0644"
+-  template: src=90-replication.conf.j2 dest="/etc/dovecot/conf.d/90-replication.conf" owner="root" group="wheel" mode="0644"
+-  template: src=90-sieve-extprograms.conf.j2 dest="/etc/dovecot/conf.d/90-sieve-extprograms.conf" owner="root" group="wheel" mode="0644"
+-  template: src=10-auth.conf.j2 dest="/etc/dovecot/conf.d/10-auth.conf" owner="root" group="wheel" mode="0644"
+-  template: src=20-imap.conf.j2 dest="/etc/dovecot/conf.d/20-imap.conf" owner="root" group="wheel" mode="0644"
+-  template: src=20-lmtp.conf.j2 dest="/etc/dovecot/conf.d/20-lmtp.conf" owner="root" group="wheel" mode="0644"
+-  template: src=15-lda.conf.j2 dest="/etc/dovecot/conf.d/15-lda.conf" owner="root" group="wheel" mode="0644"
+-  template: src=10-director.conf.j2 dest="/etc/dovecot/conf.d/10-director" owner="root" group="wheel" mode="0644"
+-  template: src=20-managesieve.conf.j2 dest="/etc/dovecot/conf.d/20-managesieve.conf" owner="root" group="wheel" mode="0644"
+-  template: src=10-mail.conf.j2 dest="/etc/dovecot/conf.d/10-mail.conf" owner="root" group="wheel" mode="0644"
+-  template: src=10-master.conf.j2 dest="/etc/dovecot/conf.d/10-master.conf" owner="root" group="wheel" mode="0644"
+-  template: src=auth-passwdfile.conf.ext.j2 dest="/etc/dovecot/conf.d/auth-passwdfile.conf.ext" owner="root" group="wheel" mode="0644"
+-  template: src=dovecot.conf.j2 dest="/etc/dovecot/dovecot.conf" owner="root" group="wheel" mode="0644"
+-  template: src=local.conf.j2 dest="/etc/dovecot/local.conf" owner="root" group="wheel" mode="0644"
+-  template: src=dovecot-trash.conf.ext.j2 dest="/etc/dovecot/dovecot-trash.conf.ext" owner="root" group="wheel" mode="0644"
+-  template: src=antivirus.conf.j2 dest="/etc/rspamd/local.d/antivirus.conf" owner="root" group="wheel" mode="0644"
+-  template: src=classifier-bayes.conf.j2 dest="/etc/rspamd/local.d/classifier-bayes.conf" owner="root" group="wheel" mode="0644"
+-  template: src=options.inc.j2 dest="/etc/rspamd/local.d/options.inc" owner="root" group="wheel" mode="0644"
+-  template: src=replies.conf.j2 dest="/etc/rspamd/local.d/replies.conf" owner="root" group="wheel" mode="0644"
+-  template: src=surbl.conf.j2 dest="/etc/rspamd/local.d/surbl.conf" owner="root" group="wheel" mode="0644"
+-  template: src=worker-controller.inc.j2 dest="/etc/rspamd/local.d/worker-controller.inc" owner="root" group="wheel" mode="0644"
+-  template: src=worker-normal.inc.j2 dest="/etc/rspamd/local.d/worker-normal.inc" owner="root" group="wheel" mode="0644"
+-  template: src=worker-proxy.inc.j2 dest="/etc/rspamd/local.d/worker-proxy.inc" owner="root" group="wheel" mode="0644"
+
+- blockinfile: |
+      dest=/etc/login.conf backup=yes
+      content="## Dovecot
+        dovecot:\
+                :openfiles-cur=1024:\
+                :openfiles-max=2048:\
+                :tc=daemon:"
+      insertafter=EOF
+
+- name: Enable smtpd
+  service: name=smtpd state=started enabled=yes
+
+- name: Enable dovecot
+  service: name=dovecot state=started enabled=yes
+
+- name: Enable rspamd
+  service: name=rspamd state=started enabled=yes

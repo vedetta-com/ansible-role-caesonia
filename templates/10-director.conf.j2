@@ -1,0 +1,19 @@
+service director {
+	unix_listener login/director {
+	}
+	fifo_listener login/proxy-notify {
+	}
+	unix_listener director-userdb {
+	}
+	inet_listener {
+	}
+}
+
+service imap-login {
+}
+
+service pop3-login {
+}
+
+protocol lmtp {
+}

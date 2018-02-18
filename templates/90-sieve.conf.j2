@@ -1,0 +1,8 @@
+plugin {
+	sieve = file:~/sieve;active=~/.dovecot.sieve
+	sieve_before = /var/dovecot/sieve.d
+	sieve_extensions = +spamtest +spamtestplus
+	sieve_spamtest_status_type = score
+	sieve_spamtest_status_header = X-Spamd-Result: default: [[:alnum:]]+ \[(-?[[:digit:]]+\.[[:digit:]]+) / -?[[:digit:]]+\.[[:digit:]]+\]
+	sieve_spamtest_max_header    = X-Spamd-Result: default: [[:alnum:]]+ \[-?[[:digit:]]+\.[[:digit:]]+ / (-?[[:digit:]]+\.[[:digit:]]+)\]
+}
